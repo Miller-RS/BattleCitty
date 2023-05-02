@@ -27,11 +27,26 @@ public class TCPServerThread50 extends Thread{
     private int clientID;                 
     private boolean running = false;
     public PrintWriter mOut;
+    public PrintWriter mOut2;
     public BufferedReader in;
     private TCPServer50.OnMessageReceived messageListener = null;
     private String message;
     TCPServerThread50[] cli_amigos;
-
+    public String[][] campo = {{"-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"},//28
+                                    {"|"," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ","|"},
+                                    {"|"," "," ","#"," "," ","#"," "," ","#"," "," "," "," "," "," ","#"," "," "," ","#","#"," "," ","#","#"," ","#","|"},
+                                    {"|"," "," ","#"," "," ","#"," "," ","#","#"," "," "," "," "," ","#"," "," "," ","#","#"," "," "," "," "," "," ","|"},
+                                    {"|"," "," ","#"," "," ","#"," "," ","#"," ","#"," "," "," "," ","#"," "," "," ","#","#"," "," "," "," "," "," ","|"},
+                                    {"|"," "," ","#"," "," ","#"," "," ","#"," "," ","#"," "," "," ","#"," "," "," ","#","#"," "," "," "," "," "," ","|"},
+                                    {"|"," "," ","#"," "," ","#"," "," ","#"," "," "," ","#"," "," ","#"," "," "," ","#","#"," "," ","#"," "," "," ","|"},
+                                    {"|"," "," ","#"," "," ","#"," "," ","#"," "," "," "," ","#"," ","#"," "," "," ","#","#"," "," "," ","#"," "," ","|"},
+                                    {"|"," "," ","#"," "," ","#"," "," ","#"," "," "," "," "," ","#","#"," "," "," ","#","#"," "," "," "," ","#"," ","|"},
+                                    {"|"," "," ","#","#","#","#"," "," ","#"," "," "," "," "," "," ","#"," "," "," ","#","#"," "," "," "," "," ","#","|"},
+                                    {"|"," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ","|"},
+                                    {"|"," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ","|"},
+                                    {"-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"}};//13 filas
+                
+    
     public TCPServerThread50(Socket client_, TCPServer50 tcpserver_, int clientID_,TCPServerThread50[] cli_ami_) {
         this.client = client_;
         this.tcpserver = tcpserver_;
@@ -55,36 +70,85 @@ public class TCPServerThread50 extends Thread{
                 //sendMessage("Megaman 8x");
                 
                 //enviar el campo de batalla a los clientes
-                String[][] campo = {{" ","#"," "," "," ", "#","#","#"},//8
-                            {" ","#"," "," "," ", "#","#","#"},
-                            {" ","#"," "," "," ", "#","#","#"},
-                            {" ","#"," "," "," ", "#","#","#"},
-                            {" ","#"," "," "," ", "#","#","#"},
-                            {" ","#"," "," "," ", "#","#","#"},
-                            {" ","#"," "," "," ", "#","#","#"},
-                            {" ","#"," "," "," ", "#","#","#"},
-                            {" ","#","#","#","#", "#","#","#"}};
                 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                //transformamos el campo a bits para enviarlo
+               /* ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos);
                 oos.writeObject(campo);
                 byte[] bytes = baos.toByteArray();
                 OutputStream os = client.getOutputStream();
                 os.write(bytes);
                 System.out.println("size bytes: "+bytes.length);
+                System.out.println("campo size:"+ campo.length); */
                ////////////////////////////////////////////////////////
                
-               
-                while (running) {
-                    message = in.readLine();
-                    
-                    if (message != null && messageListener != null) {
-                        messageListener.messageReceived(message);
+                for(int i = 0; i < campo.length; i++) {
+                    for(int j = 0; j < campo[i].length; j++) {
+                    sendMessage(campo[i][j]);
                     }
+                }
+               
+               
+               /* while (running) {
+                   // message = in.readLine();
+                    System.out.println("entra 1");
+                    //recivimos el campo de batalla actualizado
+                    InputStream inputStream = client.getInputStream();
+                   // DataInputStream dataInputStream = new DataInputStream(inputStream);
+                    //int matrixLength = dataInputStream.readInt();
+                    System.out.println("entra 2");
+                    byte[] bytes2 = new byte[2086];//size del campo de batalla
+                     System.out.println("entra 3");
+                    int count = inputStream.read(bytes2);
+                     System.out.println("entra 4");
+                    ByteArrayInputStream bais = new ByteArrayInputStream(bytes2, 0, count);
+                    ObjectInputStream ois = new ObjectInputStream(bais);
+                    String[][] campoUpdate = (String[][]) ois.readObject();
+
+                    campo = campoUpdate;
+                    
+                    System.out.println(campo[1][1]);
+                   /* if (message != null && messageListener != null) {
+                        messageListener.messageReceived(message);
+                    }*/
                     
 
-                    message = null;
+                  //  message = null;
+               //}
+               System.out.print(in.ready());
+                while(running){
+                    for (int i = 0; i < 13; i++) {
+                        for (int j = 0; j < 29; j++) {
+                            campo[i][j] = in.readLine();
+                        }
+                    }
+                    System.out.println("Recivio el campo actualizado");
+                    for (int i = 0; i < 13; i++) {
+                        for (int j = 0; j < 29; j++) {
+                            System.out.print(campo[i][j] + " ");
+                        }
+                        System.out.println();
+                    }
+                    System.out.println(campo[4][3]);
+                    System.out.println(tcpserver.nrcli);
+                    for(TCPServerThread50 t : tcpserver.sendclis){
+                        System.out.println(t.clientID);
+                        if(t != tcpserver.sendclis[tcpserver.nrcli]){
+                            mOut2 = new PrintWriter(new BufferedWriter(new OutputStreamWriter(t.client.getOutputStream())), true);
+                            for(int i = 0; i < 13; i++) {
+                                for(int j = 0; j < 29; j++) {
+                                    mOut2.println(campo[i][j]);
+                                }
+                            }
+                        }
+                   
+                    }
                 }
+                
+               
+                
+               
+                
                 System.out.println("RESPONSE FROM CLIENT"+ "S: Received Message: '" + message + "'");
             } catch (Exception e) {
                 System.out.println("TCP Server"+ "S: Error"+ e);

@@ -4,6 +4,9 @@
  */
 package com.mycompany.battlecity;
 import java.lang.String;
+import java.util.Random;
+import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -13,12 +16,17 @@ import java.lang.String;
 public class window extends javax.swing.JFrame {
 
     String[][] mapa;
+    public boolean condicionDeConexion = false;
+    AtomicBoolean buttonClicked = new AtomicBoolean(false);
+    TCPClient50 manejador;
     /**
      * Creates new form window
      * @param mapa
+     * @param manage
      */
-    public window(String[][] mapa) {
+    public window(String[][] mapa, TCPClient50 manage) {
         this.mapa = mapa;
+        this.manejador = manage;
         initComponents();
         
     }
@@ -83,6 +91,7 @@ public class window extends javax.swing.JFrame {
         jButton5.setName("flecha_Baja"); // NOI18N
 
         jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
@@ -102,22 +111,20 @@ public class window extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(75, 75, 75)
-                        .addComponent(jButton1)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 436, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 128, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jButton3)
-                                .addGap(72, 72, 72)
-                                .addComponent(jButton4))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jButton2)
-                                    .addComponent(jButton5))
-                                .addGap(45, 45, 45)))
-                        .addGap(38, 38, 38))))
+                        .addComponent(jButton1))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 440, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 124, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButton3)
+                        .addGap(72, 72, 72)
+                        .addComponent(jButton4))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton2)
+                            .addComponent(jButton5))
+                        .addGap(45, 45, 45)))
+                .addGap(38, 38, 38))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -129,19 +136,20 @@ public class window extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
-                .addGap(28, 28, 28)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(70, 70, 70)
                         .addComponent(jButton2)
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton3)
                             .addComponent(jButton4))
                         .addGap(18, 18, 18)
-                        .addComponent(jButton5)
-                        .addGap(61, 61, 61)))
-                .addContainerGap(48, Short.MAX_VALUE))
+                        .addComponent(jButton5))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(28, 28, 28)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
 
         pack();
@@ -153,13 +161,57 @@ public class window extends javax.swing.JFrame {
 */
     public void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
+        boolean search = true;
         
-        for(int i = 0; i < 9; i++) {
-            for(int j = 0; j < 8; j++) {
-                jTextArea1.append(mapa[i][j] + " ");
-            }
-            jTextArea1.append("\n");
+        
+
+        //Generar posicion aleatoria del tanque 
+        while(search){
+                Random rand = new Random();
+                int Column = rand.nextInt(29);
+                int row = rand.nextInt(13);
+                
+                if(mapa[row][Column].equals(" ")){
+                    mapa[row][Column] = ">";
+                    condicionDeConexion =  true;
+                    System.out.println(condicionDeConexion);
+                    buttonClicked.set(true);
+                    search = false;
+                    
+                }
+                
         }
+        
+        //pasar la matrix al jTextArea de la GUI
+        StringJoiner joiner = new StringJoiner("");
+        for(int i = 0; i < 13; i++) {
+            for(int j = 0; j < 29; j++) {
+                //jTextArea1.setText(mapa[i][j] + " ");
+                
+                joiner.add(mapa[i][j]+ " ");
+                //columns = jTextArea1.getColumns();
+                //rows = jTextArea1.getRows();
+                
+                
+            }
+            //jTextArea1.setText("\n");
+            
+            joiner.add("\n");
+        }
+        
+        //jTextArea1.setVisible(true);
+        jTextArea1.setText(joiner.toString());
+ 
+        for (int i = 0; i < 13; i++) {
+            for (int j = 0; j < 29; j++) {
+                manejador.sendMessage(mapa[i][j]);
+            }
+        }
+                //int pos = (4) * (jTextArea1.getComponentCount() +1) + 22;
+        //jTextArea1.replaceRange(String.valueOf("[]>"), pos, pos+1);
+        //columns = jTextArea1.getColumns();
+        //rows = jTextArea1.getRows();
+        System.out.println("Columnas: "+jTextArea1.getColumns()+ " Filas: "+jTextArea1.getRows());        
     }
 
     
